@@ -1,0 +1,215 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FORGE_OS // NEURAL_SYNC_AUTH</title>
+    <style>
+        :root {
+            --cyan: #00f0ff;
+            --magenta: #ff00ff;
+            --bg: #000205;
+            --glass: rgba(0, 240, 255, 0.03);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--bg);
+            background-image: radial-gradient(circle at center, #0a0a20 0%, #000 100%);
+            color: #fff;
+            font-family: 'Segoe UI', monospace;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        /* 3D Floating Stage */
+        .auth-container {
+            position: relative;
+            perspective: 1000px;
+            z-index: 10;
+        }
+
+        .auth-card {
+            width: 400px;
+            padding: 40px;
+            background: var(--glass);
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            border-top: 5px solid var(--cyan);
+            border-bottom: 1px solid var(--magenta);
+            transform: rotateY(-10deg) rotateX(5deg);
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(0, 240, 255, 0.05);
+            text-align: center;
+        }
+
+        /* Biometric Scanner */
+        .bio-scanner {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 30px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .fingerprint {
+            font-size: 50px;
+            color: var(--cyan);
+            text-shadow: 0 0 15px var(--cyan);
+            animation: pulse-glow 2s infinite;
+        }
+
+        .pulse-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            height: 100%;
+            border: 2px solid var(--cyan);
+            border-radius: 50%;
+            animation: ring-expand 2s infinite ease-out;
+            opacity: 0;
+        }
+
+        @keyframes ring-expand {
+            0% { width: 50%; height: 50%; opacity: 1; }
+            100% { width: 180%; height: 180%; opacity: 0; }
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { filter: brightness(1); transform: scale(1); }
+            50% { filter: brightness(1.5); transform: scale(1.05); }
+        }
+
+        /* Input Fields */
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        label {
+            font-size: 10px;
+            letter-spacing: 3px;
+            color: var(--cyan);
+            text-transform: uppercase;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid #222;
+            padding: 12px;
+            color: white;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        input:focus {
+            border-color: var(--cyan);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
+        }
+
+        /* Login Button */
+        .btn-sync {
+            width: 100%;
+            padding: 15px;
+            background: transparent;
+            border: 1px solid var(--magenta);
+            color: var(--magenta);
+            font-weight: bold;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            cursor: pointer;
+            position: relative;
+            margin-top: 10px;
+        }
+
+        .btn-sync:hover {
+            background: var(--magenta);
+            color: black;
+            box-shadow: 0 0 30px var(--magenta);
+        }
+
+        /* Ambient HUD Data */
+        .hud-data {
+            position: absolute;
+            font-size: 9px;
+            color: #444;
+            pointer-events: none;
+        }
+
+        .scanning-bar {
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background: var(--cyan);
+            top: 0;
+            left: 0;
+            box-shadow: 0 0 10px var(--cyan);
+            animation: scan-move 4s infinite linear;
+            z-index: 5;
+        }
+
+        @keyframes scan-move {
+            0% { top: 0%; opacity: 0; }
+            50% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="auth-container">
+        <div class="hud-data" style="top: -50px; left: -20px; color: var(--cyan)">IDENTITY_CHECK: [REQUIRED]</div>
+        <div class="hud-data" style="bottom: -30px; right: 0;">MEM_LOC: 0x8892_ARCHIVE</div>
+
+        <div class="auth-card">
+            <div class="scanning-bar"></div>
+            
+            <div class="bio-scanner" onclick="startSync()">
+                <div class="pulse-ring"></div>
+                <div class="fingerprint">ID</div>
+            </div>
+
+            <h2 style="font-weight: 200; letter-spacing: 8px; margin-bottom: 30px; font-size: 18px;">LOGIN</h2>
+
+            <div class="input-group">
+                <label>User Identifier</label>
+                <input type="email" placeholder="neural_id@forge.os">
+            </div>
+
+            <div class="input-group">
+                <label>Access Key</label>
+                <input type="password" placeholder="••••••••">
+            </div>
+
+            <button class="btn-sync" id="sync-btn" onclick="window.location.href='dashboard.html'">Initialize Sync</button>
+            
+            <div style="margin-top: 20px;">
+                <span style="font-size: 10px; color: #444;">OR AUTH VIA GOOGLE_CORE</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function startSync() {
+            const btn = document.getElementById('sync-btn');
+            btn.innerHTML = "SYNCING...";
+            btn.style.color = "var(--cyan)";
+            btn.style.borderColor = "var(--cyan)";
+            
+            setTimeout(() => {
+                alert("Identity Confirmed. Loading Neural Archive...");
+                // Redirect logic would go here
+            }, 1500);
+        }
+    </script>
+</body>
+</html>
