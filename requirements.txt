@@ -1,0 +1,14 @@
+fastapi
+uvicorn[standard]
+python-multipart
+jinja2
+
+torch
+transformers
+sentence-transformers
+scikit-learn
+networkx
+matplotlib
+pymupdf
+openai-whisper
+ffmpeg-python

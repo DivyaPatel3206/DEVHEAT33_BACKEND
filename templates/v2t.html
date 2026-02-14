@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>IT Concept Graph</title>
+
+  <style>
+    :root{
+      --bg1:#06122a;
+      --bg2:#0b2a66;
+      --card:rgba(255,255,255,.08);
+      --border:rgba(255,255,255,.18);
+      --text:#eaf2ff;
+      --muted:rgba(234,242,255,.72);
+      --blue:#3aa0ff;
+      --blue2:#2b6bff;
+      --danger:#ff4d6d;
+      --shadow: 0 20px 60px rgba(0,0,0,.35);
+      --radius: 20px;
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      color:var(--text);
+      min-height:100vh;
+      background:
+        radial-gradient(1100px 700px at 20% 10%, rgba(58,160,255,.32), transparent 60%),
+        radial-gradient(900px 600px at 80% 20%, rgba(43,107,255,.28), transparent 55%),
+        linear-gradient(160deg, var(--bg1), var(--bg2));
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:28px 16px;
+    }
+    .wrap{ width:min(1100px, 100%); }
+    .topbar{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:16px; margin-bottom:16px;
+    }
+    .brand{ display:flex; align-items:center; gap:12px; }
+    .logo{
+      width:44px;height:44px;border-radius:14px;
+      background: linear-gradient(135deg, rgba(58,160,255,.9), rgba(43,107,255,.9));
+      box-shadow: 0 10px 30px rgba(58,160,255,.25);
+      display:grid; place-items:center; font-size:22px;
+    }
+    h1{ font-size:22px; margin:0; line-height:1.1; }
+    .subtitle{ margin:4px 0 0 0; font-size:13px; color:var(--muted); }
+    .pill{
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.06);
+      padding:8px 12px;
+      border-radius:999px;
+      font-size:13px;
+      color:var(--muted);
+      backdrop-filter: blur(10px);
+      white-space:nowrap;
+    }
+    .card{
+      border:1px solid var(--border);
+      background: linear-gradient(180deg, var(--card), rgba(255,255,255,.04));
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+      overflow:hidden;
+    }
+    .inner{ padding:18px; }
+    .grid{ display:grid; grid-template-columns: 1fr 1fr; gap:16px; }
+    @media (max-width: 900px){ .grid{ grid-template-columns: 1fr; } }
+
+    .panel{
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.05);
+      border-radius: 16px;
+      padding:14px;
+    }
+    .panel h2{
+      margin:0 0 10px 0;
+      font-size:14px;
+      letter-spacing:.3px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+    textarea{
+      width:100%;
+      min-height: 220px;
+      resize: vertical;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.14);
+      padding:14px;
+      background: rgba(0,0,0,.18);
+      color: var(--text);
+      outline:none;
+      line-height:1.45;
+      font-size: 14px;
+    }
+    .row{ display:grid; grid-template-columns: repeat(3, 1fr); gap:10px; }
+    @media (max-width: 520px){ .row{ grid-template-columns: 1fr; } }
+
+    label{ display:block; font-size:12px; color:var(--muted); margin-bottom:6px; }
+    input[type="number"]{
+      width:100%;
+      padding:12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.18);
+      color: var(--text);
+      outline:none;
+    }
+
+    .btn{
+      margin-top:12px;
+      width:100%;
+      padding:12px 14px;
+      border:none;
+      border-radius: 14px;
+      cursor:pointer;
+      font-weight: 800;
+      color:white;
+      background: linear-gradient(135deg, var(--blue), var(--blue2));
+      box-shadow: 0 12px 30px rgba(43,107,255,.25);
+    }
+    .btn:active{ transform: translateY(1px); }
+
+    .alert{
+      border:1px solid rgba(255,77,109,.35);
+      background: rgba(255,77,109,.10);
+      color: #ffd7df;
+      border-radius: 14px;
+      padding:12px;
+      font-size: 13px;
+      margin-top:12px;
+      white-space: pre-wrap;
+    }
+
+    .concepts{
+      display:flex; flex-wrap:wrap; gap:8px;
+      margin-top:10px;
+    }
+    .tag{
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(58,160,255,.12);
+      color: var(--text);
+      padding:7px 10px;
+      border-radius: 999px;
+      font-size: 13px;
+    }
+
+    img{
+      width:100%;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.18);
+    }
+
+    .hint{ font-size: 12.5px; color: var(--muted); margin-top:10px; line-height:1.4; }
+
+    /* Loading overlay */
+    .overlay{
+      position:fixed; inset:0;
+      background: rgba(2,8,20,.55);
+      backdrop-filter: blur(6px);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index:999;
+    }
+    .overlay.show{ display:flex; }
+    .loader{
+      width:min(520px, 92%);
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.08);
+      border-radius: 18px;
+      padding:18px;
+      box-shadow: var(--shadow);
+    }
+    .loader-top{ display:flex; align-items:center; gap:12px; margin-bottom:12px; }
+    .spinner{
+      width:18px; height:18px; border-radius:50%;
+      border:3px solid rgba(234,242,255,.25);
+      border-top-color: rgba(58,160,255,.95);
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin{ to{ transform: rotate(360deg);} }
+    .bar{ height:10px; border-radius:999px; background: rgba(255,255,255,.10); overflow:hidden; }
+    .bar > div{
+      height:100%; width:35%;
+      border-radius:999px;
+      background: linear-gradient(90deg, var(--blue), var(--blue2));
+      animation: move 1.1s ease-in-out infinite alternate;
+    }
+    @keyframes move{ from{ transform: translateX(-10%);} to{ transform: translateX(170%);} }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo">🕸️</div>
+        <div>
+          <h1>IT Concept Graph</h1>
+          <p class="subtitle">Paste your topic text → extract concepts → render graph.</p>
+        </div>
+      </div>
+      <div class="pill">NER: <b style="color:var(--text)">dslim/bert-base-NER</b></div>
+    </div>
+
+    <div class="card">
+      <div class="inner">
+        <div class="grid">
+          <!-- Left: input -->
+          <div class="panel">
+            <h2>Input</h2>
+
+            <form id="cgForm" action="/generate" method="post">
+              <textarea name="text" placeholder="Paste your IT topic text...">{{ text }}</textarea>
+
+              <div class="row" style="margin-top:12px;">
+                <div>
+                  <label>Max nodes</label>
+                  <input type="number" name="max_nodes" min="1" max="100" value="{{ max_nodes }}">
+                </div>
+                <div>
+                  <label>NER limit</label>
+                  <input type="number" name="max_ner" min="0" max="50" value="{{ max_ner }}">
+                </div>
+                <div>
+                  <label>Keyword limit</label>
+                  <input type="number" name="max_kw" min="0" max="50" value="{{ max_kw }}">
+                </div>
+              </div>
+
+              <button class="btn" type="submit">Generate Concept Graph</button>
+              <div class="hint">Tip: increase keyword limit for technical terms like TCP/IP, NAT, DNS.</div>
+            </form>
+
+            {% if error %}
+              <div class="alert">⚠️ {{ error }}</div>
+            {% endif %}
+
+            {% if concepts %}
+              <h2 style="margin-top:14px;">Extracted Concepts</h2>
+              <div class="concepts">
+                {% for c in concepts %}
+                  <span class="tag">{{ c }}</span>
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+
+          <!-- Right: output graph -->
+          <div class="panel">
+            <h2>Graph Output</h2>
+
+            {% if has_graph %}
+              <img
+                alt="concept graph"
+                src="/concept-graph/image?text={{ text|urlencode }}&max_nodes={{ max_nodes }}&max_ner={{ max_ner }}&max_kw={{ max_kw }}"
+              />
+              <div class="hint" style="margin-top:10px;">
+                If nodes overlap, reduce max nodes or try shorter input text.
+              </div>
+            {% else %}
+              <div class="hint">Graph will appear here after you click “Generate”.</div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="overlay" class="overlay" aria-hidden="true">
+    <div class="loader">
+      <div class="loader-top">
+        <div class="spinner"></div>
+        <div>
+          <div style="font-weight:800;">Building graph…</div>
+          <div class="subtitle" style="margin:2px 0 0 0;">Extracting concepts + rendering PNG.</div>
+        </div>
+      </div>
+      <div class="bar"><div></div></div>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById("cgForm");
+    const overlay = document.getElementById("overlay");
+    form.addEventListener("submit", () => {
+      overlay.classList.add("show");
+      overlay.setAttribute("aria-hidden","false");
+    });
+  </script>
+</body>
+</html>
