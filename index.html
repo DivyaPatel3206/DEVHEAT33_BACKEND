@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FORGE_OS // BEYOND_LIMITS</title>
+    <style>
+        :root {
+            --neon-cyan: #00f0ff;
+            --neon-magenta: #ff00ff;
+            --bg-black: #000103;
+            --hologram-glow: rgba(0, 240, 255, 0.15);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; cursor: crosshair; }
+
+        body {
+            background-color: var(--bg-black);
+            background-image: 
+                radial-gradient(circle at 50% 50%, #0a0a1a 0%, #000 100%),
+                repeating-linear-gradient(0deg, transparent 0, rgba(0,0,0,0.2) 1px, transparent 2px);
+            color: #fff;
+            font-family: 'Orbitron', sans-serif; /* You can link this from Google Fonts */
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            perspective: 1200px;
+        }
+
+        /* The Ghost-Frame Glitch Effect */
+        @keyframes glitch {
+            0% { transform: translate(0); text-shadow: 2px 0 var(--neon-magenta), -2px 0 var(--neon-cyan); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); text-shadow: -2px 0 var(--neon-magenta), 2px 0 var(--neon-cyan); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            100% { transform: translate(0); }
+        }
+
+        /* Floating HUD Elements */
+        .hud-ambient {
+            position: absolute;
+            width: 800px;
+            height: 800px;
+            border: 1px solid rgba(0, 240, 255, 0.05);
+            border-radius: 50%;
+            animation: pulse-ring 8s infinite ease-in-out;
+        }
+
+        @keyframes pulse-ring {
+            0% { transform: scale(0.8) rotate(0deg); opacity: 0.1; }
+            50% { transform: scale(1.1) rotate(180deg); opacity: 0.3; }
+            100% { transform: scale(0.8) rotate(360deg); opacity: 0.1; }
+        }
+
+        /* The Neural Core */
+        .neural-engine {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, var(--neon-cyan) 0%, transparent 70%);
+            filter: blur(40px);
+            opacity: 0.4;
+            mix-blend-mode: screen;
+            animation: breathe 4s infinite alternate;
+        }
+
+        @keyframes breathe {
+            from { transform: scale(1); opacity: 0.2; }
+            to { transform: scale(1.4); opacity: 0.5; }
+        }
+
+        /* Main Hologram Interface */
+        .interface-frame {
+            position: relative;
+            z-index: 10;
+            width: 700px;
+            padding: 40px;
+            background: linear-gradient(135deg, rgba(0, 240, 255, 0.05) 0%, rgba(255, 0, 255, 0.02) 100%);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            border-right: 4px solid var(--neon-cyan);
+            border-left: 4px solid var(--neon-magenta);
+            transform: rotateX(10deg) rotateY(-10deg);
+            box-shadow: 0 0 100px rgba(0, 0, 0, 1), 0 0 20px var(--hologram-glow);
+        }
+
+        .system-id {
+            font-size: 9px;
+            letter-spacing: 5px;
+            color: var(--neon-cyan);
+            text-transform: uppercase;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .glitch-title {
+            font-size: 64px;
+            font-weight: 900;
+            letter-spacing: -2px;
+            text-transform: uppercase;
+            animation: glitch 3s infinite linear;
+            margin-bottom: 10px;
+        }
+
+        /* Data Input Modules */
+        .module-row {
+            display: flex;
+            gap: 10px;
+            margin: 30px 0;
+        }
+
+        .module-card {
+            flex: 1;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 10px;
+            text-align: center;
+            transition: 0.3s;
+        }
+
+        .module-card:hover {
+            border-color: var(--neon-cyan);
+            background: rgba(0, 240, 255, 0.1);
+            transform: translateZ(20px);
+        }
+
+        /* The Ultimate Button */
+        .initialize-trigger {
+            width: 100%;
+            height: 60px;
+            margin-top: 20px;
+            background: transparent;
+            border: none;
+            position: relative;
+            color: #fff;
+            font-weight: bold;
+            letter-spacing: 10px;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+
+        .btn-bg {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--neon-cyan);
+            clip-path: polygon(5% 0, 100% 0, 95% 100%, 0 100%);
+            z-index: -1;
+            transition: 0.4s;
+            opacity: 0.8;
+        }
+
+        .initialize-trigger:hover .btn-bg {
+            background: var(--neon-magenta);
+            opacity: 1;
+            box-shadow: 0 0 50px var(--neon-magenta);
+        }
+
+        .status-scan {
+            width: 100%;
+            height: 2px;
+            background: var(--neon-cyan);
+            position: absolute;
+            top: 0;
+            left: 0;
+            animation: scanning 3s infinite linear;
+            box-shadow: 0 0 15px var(--neon-cyan);
+        }
+
+        @keyframes scanning {
+            0% { top: 0%; opacity: 0; }
+            50% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="hud-ambient"></div>
+    <div class="neural-engine"></div>
+
+    <div class="interface-frame">
+        <div class="status-scan"></div>
+        
+        <div class="system-id">
+            <span>Kernel: Optimized</span>
+            <span>Neural_Link: 0.0.1-Alpha</span>
+        </div>
+
+        <h1 class="glitch-title">TUTOR.AI</h1>
+        <p style="color: var(--neon-cyan); font-size: 11px; letter-spacing: 4px;">LIMITLESS LEARNING INTERFACE</p>
+
+        <div class="module-row">
+            <div class="module-card">
+                <div style="color: var(--neon-cyan); font-size: 18px;">◈</div>
+                VIDEO_STREAM
+            </div>
+            <div class="module-card">
+                <div style="color: var(--neon-magenta); font-size: 18px;">⧈</div>
+                PDF_CORE
+            </div>
+            <div class="module-card">
+                <div style="color: var(--neon-cyan); font-size: 18px;">△</div>
+                RAW_DATA
+            </div>
+        </div>
+
+        <div style="font-size: 10px; color: #555; line-height: 2;">
+            > ANALYZING COGNITIVE LOAD... [OK]<br>
+            > MAPPING SYNAPTIC PATHWAYS... [OK]<br>
+            > BYPASSING TRADITIONAL CONSTRAINTS... [ENABLED]
+        </div>
+
+       <button class="initialize-trigger" onclick="window.location.href='login.html'">
+  <span class="btn-bg"></span>
+  Enter The Void
+</button>
+
+        <div style="position: absolute; bottom: -20px; right: 0; font-size: 8px; color: var(--neon-magenta);">
+            [ AUTHENTICATED // NO_LIMITS ]
+        </div>
+    </div>
+
+</body>
+</html>
