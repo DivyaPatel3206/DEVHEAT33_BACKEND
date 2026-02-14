@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>FORGE_OS // DASHBOARD</title>
+
+  <style>
+    :root{
+      --cyan:#00f0ff;
+      --magenta:#ff00ff;
+      --bg:#000205;
+      --glass:rgba(0,240,255,.06);
+      --glass2:rgba(255,255,255,.04);
+      --border:rgba(0,240,255,.18);
+      --border2:rgba(255,0,255,.16);
+      --text:rgba(255,255,255,.86);
+      --muted:rgba(255,255,255,.55);
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      background:var(--bg);
+      font-family: "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
+      color:var(--text);
+      overflow:hidden;
+    }
+
+    #neuralCanvas{
+      position:fixed;
+      inset:0;
+      width:100%;
+      height:100%;
+      z-index:0;
+    }
+
+    .scene{
+      position:relative;
+      z-index:2;
+      height:100%;
+      width:100%;
+      transform-style:preserve-3d;
+    }
+
+    .glass{
+      background:var(--glass);
+      border:1px solid var(--border);
+      backdrop-filter: blur(18px);
+      box-shadow: 0 20px 70px rgba(0,0,0,.55), 0 0 22px rgba(0,240,255,.08);
+      border-radius:18px;
+    }
+    .glass-soft{
+      background:var(--glass2);
+      border:1px solid rgba(255,255,255,.08);
+      backdrop-filter: blur(16px);
+      border-radius:16px;
+    }
+
+    .topbar{
+      position:fixed;
+      top:18px;
+      left:18px;
+      right:18px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:14px 16px;
+      gap:14px;
+    }
+    .brand{
+      display:flex;
+      gap:12px;
+      align-items:center;
+    }
+    .brand-mark{
+      width:38px;height:38px;
+      border-radius:12px;
+      display:grid;place-items:center;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(0,0,0,.35);
+      color:var(--cyan);
+      text-shadow:0 0 14px rgba(0,240,255,.35);
+      font-weight:800;
+    }
+    .brand-title{
+      letter-spacing:3px;
+      font-weight:900;
+    }
+    .brand-sub{
+      margin-top:2px;
+      font-size:11px;
+      letter-spacing:2px;
+      color:var(--muted);
+    }
+
+    .topbar-right{
+      display:flex;
+      gap:10px;
+      align-items:center;
+    }
+
+    .status-pill{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      padding:10px 12px;
+      border-radius:999px;
+      background:rgba(0,0,0,.35);
+      border:1px solid rgba(255,255,255,.10);
+      font-size:12px;
+      color:rgba(255,255,255,.7);
+    }
+    .dot{
+      width:8px;height:8px;border-radius:50%;
+      background:var(--cyan);
+      box-shadow:0 0 18px rgba(0,240,255,.55);
+    }
+
+    .primary-btn,.ghost-btn{
+      height:40px;
+      padding:0 14px;
+      border-radius:12px;
+      cursor:pointer;
+      letter-spacing:2px;
+      text-transform:uppercase;
+      font-weight:800;
+      font-size:11px;
+      transition:.25s;
+    }
+    .primary-btn{
+      border:1px solid rgba(0,240,255,.35);
+      background:rgba(0,240,255,.18);
+      color:white;
+      box-shadow:0 0 18px rgba(0,240,255,.15);
+    }
+    .primary-btn:hover{ transform: translateY(-1px); box-shadow:0 0 26px rgba(0,240,255,.25); }
+    .ghost-btn{
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(0,0,0,.25);
+      color:rgba(255,255,255,.75);
+    }
+    .ghost-btn:hover{ border-color:rgba(0,240,255,.35); color:white; }
+
+    .layout{
+      position:relative;
+      height:100%;
+      padding:92px 18px 120px;
+      display:grid;
+      grid-template-columns: 1fr 1.5fr 1fr;
+      gap:14px;
+    }
+
+    .panel{
+      padding:16px;
+      transform: translateZ(20px);
+    }
+    .panel-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-end;
+      gap:10px;
+    }
+    .panel-title{
+      font-weight:900;
+      letter-spacing:2px;
+      text-transform:uppercase;
+    }
+    .panel-id{
+      font-size:10px;
+      letter-spacing:3px;
+      color:rgba(255,255,255,.5);
+    }
+
+    .divider{
+      height:1px;
+      background:rgba(255,255,255,.08);
+      margin:14px 0;
+    }
+
+    .hero{ padding:18px; }
+    .hero-title{
+      font-size:22px;
+      font-weight:900;
+      letter-spacing:2px;
+      text-transform:uppercase;
+    }
+    .hero-sub{
+      margin-top:6px;
+      color:rgba(255,255,255,.6);
+      font-size:12px;
+      letter-spacing:1px;
+    }
+
+    .stat-grid{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:10px;
+      margin-top:12px;
+    }
+    .stat{
+      padding:12px;
+      border-radius:16px;
+      background:rgba(0,0,0,.32);
+      border:1px solid rgba(255,255,255,.08);
+    }
+    .stat-k{ font-size:11px; color:rgba(255,255,255,.55); letter-spacing:2px; text-transform:uppercase; }
+    .stat-v{ font-size:22px; font-weight:900; margin-top:6px; }
+    .stat-b{ font-size:11px; color:rgba(255,255,255,.55); margin-top:2px; }
+
+    .list-title{
+      font-size:11px;
+      letter-spacing:2px;
+      text-transform:uppercase;
+      color:rgba(255,255,255,.65);
+      margin-bottom:10px;
+    }
+    .list-item{
+      display:grid;
+      grid-template-columns:auto 1fr auto;
+      gap:10px;
+      align-items:center;
+      padding:10px 10px;
+      border-radius:14px;
+      background:rgba(0,0,0,.28);
+      border:1px solid rgba(255,255,255,.06);
+      margin-bottom:8px;
+    }
+    .li-text{ color:rgba(255,255,255,.78); font-size:12px; }
+    .li-time{ color:rgba(255,255,255,.5); font-size:11px; letter-spacing:1px; }
+
+    .tag{
+      font-size:10px;
+      letter-spacing:2px;
+      text-transform:uppercase;
+      padding:6px 8px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(255,255,255,.03);
+      white-space:nowrap;
+    }
+    .tag.cyan{ border-color:rgba(0,240,255,.28); color:rgba(0,240,255,.95); }
+    .tag.magenta{ border-color:rgba(255,0,255,.25); color:rgba(255,0,255,.9); }
+
+    .card-grid{
+      margin-top:14px;
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:12px;
+    }
+    .card{
+      text-decoration:none;
+      color:inherit;
+      padding:14px;
+      border-radius:18px;
+      background:rgba(0,0,0,.28);
+      border:1px solid rgba(255,255,255,.08);
+      transition:.25s;
+      transform: translateZ(10px);
+    }
+    .card:hover{
+      border-color:rgba(0,240,255,.25);
+      box-shadow:0 0 22px rgba(0,240,255,.10);
+      transform: translateY(-2px) translateZ(14px);
+    }
+    .card-icon{
+      width:38px;height:38px;
+      border-radius:14px;
+      display:grid;place-items:center;
+      font-weight:900;
+      margin-bottom:10px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(255,255,255,.04);
+    }
+    .card-icon.cyan{ color:var(--cyan); text-shadow:0 0 14px rgba(0,240,255,.35); }
+    .card-icon.magenta{ color:var(--magenta); text-shadow:0 0 14px rgba(255,0,255,.35); }
+    .card-title{ font-weight:900; letter-spacing:2px; text-transform:uppercase; font-size:12px; }
+    .card-sub{ margin-top:4px; color:rgba(255,255,255,.6); font-size:12px; }
+
+    .two-col{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+    }
+    .mini{ padding:14px; }
+    .mini-title{ font-weight:900; letter-spacing:2px; text-transform:uppercase; font-size:12px; }
+    .mini-sub{ margin-top:6px; color:rgba(255,255,255,.6); font-size:12px; }
+    .chips{ display:flex; flex-wrap:wrap; gap:8px; margin:12px 0; }
+    .chip{
+      padding:8px 10px;
+      border-radius:999px;
+      border:1px solid rgba(0,240,255,.18);
+      background:rgba(0,240,255,.06);
+      font-size:11px;
+      letter-spacing:1px;
+      color:rgba(255,255,255,.78);
+    }
+    .streak{ display:flex; align-items:baseline; gap:8px; margin:14px 0; }
+    .streak-num{ font-size:34px; font-weight:1000; color:var(--cyan); text-shadow:0 0 18px rgba(0,240,255,.25); }
+    .streak-label{ color:rgba(255,255,255,.6); letter-spacing:2px; text-transform:uppercase; font-size:11px; }
+
+    .hero-head{ display:flex; justify-content:space-between; align-items:flex-start; gap:14px; }
+    .ring{
+      width:84px;height:84px;border-radius:50%;
+      background: conic-gradient(var(--cyan) 0 63%, rgba(255,255,255,.10) 63% 100%);
+      display:grid;place-items:center;
+      border:1px solid rgba(255,255,255,.10);
+      box-shadow:0 0 22px rgba(0,240,255,.10);
+    }
+    .ring-inner{
+      width:64px;height:64px;border-radius:50%;
+      background:rgba(0,0,0,.55);
+      display:grid;place-items:center;
+      border:1px solid rgba(255,255,255,.10);
+      text-align:center;
+    }
+    .ring-value{ font-weight:1000; letter-spacing:1px; }
+    .ring-label{ font-size:10px; color:rgba(255,255,255,.55); letter-spacing:2px; text-transform:uppercase; }
+
+    .ops{ margin-top:12px; }
+    .ops-row{
+      display:flex;
+      justify-content:space-between;
+      padding:10px 10px;
+      border-radius:14px;
+      background:rgba(0,0,0,.28);
+      border:1px solid rgba(255,255,255,.06);
+      margin-bottom:8px;
+    }
+    .ops-k{ color:rgba(255,255,255,.70); font-size:12px; }
+    .ops-v{ font-weight:900; letter-spacing:2px; font-size:11px; }
+    .ok{ color:rgba(0,240,255,.95); }
+    .warn{ color:rgba(255,0,255,.95); }
+
+    .callout{ padding:14px; }
+    .callout-title{ font-weight:900; letter-spacing:2px; text-transform:uppercase; }
+    .callout-sub{ margin:8px 0 12px; color:rgba(255,255,255,.6); font-size:12px; }
+
+    .command-console {
+      position: fixed;
+      left:50%;
+      transform: translateX(-50%) translateZ(40px);
+      bottom: 26px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 22px;
+      background: var(--glass);
+      backdrop-filter: blur(20px);
+      border-radius: 50px;
+      border: 1px solid var(--border);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 240, 255, 0.1);
+      z-index: 1000;
+    }
+
+    .nav-item {
+      position: relative;
+      text-decoration: none;
+      color: rgba(255, 255, 255, 0.55);
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 12px 18px;
+      border-radius: 30px;
+      transition: 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .nav-item i { font-style: normal; font-size: 14px; }
+
+    .nav-item:hover {
+      color: var(--cyan);
+      background: rgba(0, 240, 255, 0.10);
+      text-shadow: 0 0 10px var(--cyan);
+    }
+
+    .nav-item.active {
+      color: white;
+      background: rgba(0, 240, 255, 0.18);
+      border: 1px solid rgba(0,240,255,.35);
+      box-shadow: 0 0 15px rgba(0, 240, 255, 0.22);
+    }
+
+    .nav-item.active::after {
+      content: "";
+      position: absolute;
+      bottom: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 40%;
+      height: 2px;
+      background: var(--cyan);
+      box-shadow: 0 0 15px var(--cyan);
+      border-radius: 10px;
+    }
+
+    .nav-item.group{ color: var(--magenta); }
+    .nav-item.group:hover{
+      background: rgba(255,0,255,.10);
+      text-shadow: 0 0 12px var(--magenta);
+    }
+
+    .console-glint {
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 60px;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.12), transparent);
+      animation: glint 5s infinite linear;
+      pointer-events:none;
+    }
+    @keyframes glint {
+      0% { left: -120%; }
+      18% { left: 220%; }
+      100% { left: 220%; }
+    }
+
+    .console-id {
+      position: absolute;
+      top: -18px;
+      left: 28px;
+      font-size: 8px;
+      color: var(--cyan);
+      opacity: 0.7;
+      letter-spacing: 3px;
+    }
+
+    /* small visual for streak state */
+    .streak-state{
+      margin-top:-6px;
+      font-size:11px;
+      color:rgba(255,255,255,.55);
+      letter-spacing:1px;
+    }
+
+    @media (max-width: 1100px){
+      .layout{ grid-template-columns:1fr; }
+      .command-console{ width: calc(100% - 24px); justify-content:space-between; }
+      .nav-item{ padding:10px 12px; }
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="neuralCanvas" aria-hidden="true"></canvas>
+
+  <div class="scene" id="scene">
+    <header class="topbar glass">
+      <div class="brand">
+        <div class="brand-mark">◈</div>
+        <div class="brand-text">
+          <div class="brand-title">FORGE_OS</div>
+          <div class="brand-sub">SINGULARITY LEARNING INTERFACE</div>
+        </div>
+      </div>
+
+      <div class="topbar-right">
+        <div class="status-pill">
+          <span class="dot"></span>
+          <span>Neural Link: Stable</span>
+        </div>
+        <button class="ghost-btn" id="simulateScan">RUN SCAN</button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <!-- Left Panel -->
+      <section class="panel glass">
+        <div class="panel-head">
+          <div class="panel-title">System Overview</div>
+          <div class="panel-id">KERNEL // V3.1</div>
+        </div>
+
+        <div class="stat-grid">
+          <div class="stat">
+            <div class="stat-k">Focus</div>
+            <div class="stat-v" id="focusStat">82%</div>
+            <div class="stat-b">↑ steady</div>
+          </div>
+          <div class="stat">
+            <div class="stat-k">Retention</div>
+            <div class="stat-v" id="retentionStat">74%</div>
+            <div class="stat-b">+ 6%</div>
+          </div>
+          <div class="stat">
+            <div class="stat-k">Queue</div>
+            <div class="stat-v" id="queueStat">12</div>
+            <div class="stat-b">pending</div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="list" id="activityList">
+          <div class="list-title">Recent Activity</div>
+
+          <!-- Initial items (JS will replace/append dynamically) -->
+          <div class="list-item">
+            <span class="tag cyan">BOOT</span>
+            <span class="li-text">Interface online</span>
+            <span class="li-time">now</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Center Panel -->
+      <section class="panel glass hero">
+        <div class="hero-head">
+          <div>
+            <div class="hero-title">Command Deck</div>
+            <div class="hero-sub">Upload, process, visualize, and compete — in one HUD.</div>
+          </div>
+          <div class="ring" title="Session Progress">
+            <div class="ring-inner">
+              <div class="ring-value" id="ringValue">63%</div>
+              <div class="ring-label">session</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-grid">
+          <a class="card" href="upload.html">
+            <div class="card-icon cyan">⤒</div>
+            <div class="card-title">Upload</div>
+            <div class="card-sub">Video / PDF / Raw notes</div>
+          </a>
+
+          <a class="card" href="quiz.html">
+            <div class="card-icon magenta">?</div>
+            <div class="card-title">Quiz Forge</div>
+            <div class="card-sub">Auto questions + eval</div>
+          </a>
+
+          <a class="card" href="graph.html">
+            <div class="card-icon cyan">⑂</div>
+            <div class="card-title">Concept Graph</div>
+            <div class="card-sub">Map knowledge nodes</div>
+          </a>
+
+          <a class="card" href="calendar.html">
+            <div class="card-icon magenta">📅</div>
+            <div class="card-title">Calendar</div>
+            <div class="card-sub">Exams + schedule</div>
+          </a>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="two-col">
+          <div class="mini glass-soft">
+            <div class="mini-title">Weak Topics Detector</div>
+            <div class="mini-sub">Targets based on evaluation signals.</div>
+            <div class="chips">
+              <span class="chip">CPU Scheduling</span>
+              <span class="chip">Deadlocks</span>
+              <span class="chip">IP Subnetting</span>
+            </div>
+            <button class="primary-btn" onclick="location.href='quiz.html'">Train Now</button>
+          </div>
+
+          <div class="mini glass-soft">
+            <div class="mini-title">Study Streak</div>
+            <div class="mini-sub">Consistency is your multiplier.</div>
+            <div class="streak">
+              <div class="streak-num" id="streakNum">0</div>
+              <div class="streak-label">days</div>
+            </div>
+            <div class="streak-state" id="streakState">Loading…</div>
+            <button class="ghost-btn" id="markStudyBtn">Mark Today Done</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right Panel -->
+      <section class="panel glass">
+        <div class="panel-head">
+          <div class="panel-title">Live Ops</div>
+          <div class="panel-id">SYNC // READY</div>
+        </div>
+
+        <div class="ops">
+          <div class="ops-row">
+            <div class="ops-k">Upload Engine</div>
+            <div class="ops-v ok">OK</div>
+          </div>
+          <div class="ops-row">
+            <div class="ops-k">PDF Core</div>
+            <div class="ops-v ok">OK</div>
+          </div>
+          <div class="ops-row">
+            <div class="ops-k">Quiz Generator</div>
+            <div class="ops-v warn">WARM</div>
+          </div>
+          <div class="ops-row">
+            <div class="ops-k">Graph Mapper</div>
+            <div class="ops-v ok">OK</div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="callout glass-soft">
+          <div class="callout-title">Group Mode</div>
+          <div class="callout-sub">Live study rooms + shared quizzes.</div>
+          <button class="primary-btn" onclick="location.href='group.html'">Enter Room</button>
+        </div>
+      </section>
+    </main>
+
+    <nav class="command-console" id="console">
+      <div class="console-id">COMMAND_CONSOLE_V3.1</div>
+      <div class="console-glint"></div>
+
+      <a href="dashboard.html" class="nav-item active"><i>⌂</i> Dashboard</a>
+      <a href="upload.html" class="nav-item"><i>⤒</i> Upload</a>
+      <a href="quiz.html" class="nav-item"><i>?</i> Quiz</a>
+      <a href="graph.html" class="nav-item"><i>⑂</i> Graph</a>
+      <a href="calendar.html" class="nav-item"><i>📅</i> Calendar</a>
+      <a href="group.html" class="nav-item group"><i>👥</i> Group</a>
+    </nav>
+  </div>
+
+  <script>
+    (() => {
+      // =========================
+      // Helpers
+      // =========================
+      const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
+      const pad2 = (n) => String(n).padStart(2, "0");
+
+      // Format time like "2m", "14m", "1h", "now"
+      function timeAgo(ts){
+        const diff = Date.now() - ts;
+        if (diff < 15000) return "now";
+        const mins = Math.floor(diff / 60000);
+        if (mins < 60) return `${mins}m`;
+        const hrs = Math.floor(mins / 60);
+        return `${hrs}h`;
+      }
+
+      // Use local date key for streak (yyyy-mm-dd)
+      function localDayKey(d = new Date()){
+        return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
+      }
+
+      function parseDayKey(key){
+        // key: yyyy-mm-dd
+        const [y,m,dd] = key.split("-").map(Number);
+        return new Date(y, m-1, dd);
+      }
+
+      function dayDiff(aKey, bKey){
+        const a = parseDayKey(aKey);
+        const b = parseDayKey(bKey);
+        // normalize midnight local
+        a.setHours(0,0,0,0);
+        b.setHours(0,0,0,0);
+        return Math.round((b - a) / 86400000);
+      }
+
+      // =========================
+      // 1) Dynamic Recent Activity
+      // =========================
+      const activityList = document.getElementById("activityList");
+      const MAX_ACTIVITY = 6;
+
+      // Activity templates
+      const activityPool = [
+        { tag: "VIDEO", color: "cyan", text: "Analyzed lecture: “OS Scheduling”" },
+        { tag: "PDF", color: "magenta", text: "Summarized: “Networking Devices”" },
+        { tag: "QUIZ", color: "cyan", text: "Generated 10 questions from notes" },
+        { tag: "GRAPH", color: "magenta", text: "Mapped concept links (OS → CPU → Deadlock)" },
+        { tag: "SYNC", color: "cyan", text: "Synced progress to local memory" },
+        { tag: "FOCUS", color: "magenta", text: "Cognitive load optimized (mode: deep)" }
+      ];
+
+      // Store activities in memory + localStorage (optional persistence)
+      const ACT_KEY = "forge_recent_activity_v1";
+      function loadActivities(){
+        try{
+          const raw = localStorage.getItem(ACT_KEY);
+          if(!raw) return [];
+          const arr = JSON.parse(raw);
+          if(!Array.isArray(arr)) return [];
+          return arr.slice(0, MAX_ACTIVITY);
+        }catch{ return []; }
+      }
+      function saveActivities(arr){
+        try{ localStorage.setItem(ACT_KEY, JSON.stringify(arr.slice(0, MAX_ACTIVITY))); }catch{}
+      }
+
+      let activities = loadActivities();
+
+      // Inject a new activity at top
+      function addActivity({tag, color, text}){
+        const item = { tag, color, text, ts: Date.now() };
+        activities.unshift(item);
+        activities = activities.slice(0, MAX_ACTIVITY);
+        saveActivities(activities);
+        renderActivities();
+      }
+
+      // Render list items
+      function renderActivities(){
+        if(!activityList) return;
+        // Keep the title, replace only items
+        activityList.innerHTML = `<div class="list-title">Recent Activity</div>` +
+          activities.map(a => `
+            <div class="list-item">
+              <span class="tag ${a.color === "magenta" ? "magenta" : "cyan"}">${a.tag}</span>
+              <span class="li-text">${a.text}</span>
+              <span class="li-time" data-ts="${a.ts}">${timeAgo(a.ts)}</span>
+            </div>
+          `).join("");
+
+        // live update timestamps without re-rendering all content
+        updateActivityTimes();
+      }
+
+      function updateActivityTimes(){
+        const nodes = activityList?.querySelectorAll(".li-time[data-ts]") || [];
+        nodes.forEach(n => {
+          const ts = Number(n.getAttribute("data-ts"));
+          n.textContent = timeAgo(ts);
+        });
+      }
+
+      // If first load is empty, seed with 3 items
+      if (activities.length === 0){
+        addActivity({tag:"BOOT", color:"cyan", text:"Interface online"});
+        addActivity({tag:"SYNC", color:"cyan", text:"Session initialized"});
+        addActivity({tag:"READY", color:"magenta", text:"Command deck armed"});
+      } else {
+        renderActivities();
+      }
+
+      // Auto-add random activities every 6–10 seconds (demo)
+      function scheduleAutoActivity(){
+        const delay = 6000 + Math.random()*4000;
+        setTimeout(() => {
+          const pick = activityPool[Math.floor(Math.random()*activityPool.length)];
+          addActivity(pick);
+          scheduleAutoActivity();
+        }, delay);
+      }
+      scheduleAutoActivity();
+
+      // Update timestamps every 20s
+      setInterval(updateActivityTimes, 20000);
+
+      // =========================
+      // 2) Dynamic Study Streak (LocalStorage)
+      // =========================
+      const streakNumEl = document.getElementById("streakNum");
+      const streakStateEl = document.getElementById("streakState");
+      const markStudyBtn = document.getElementById("markStudyBtn");
+
+      const STREAK_KEY = "forge_streak_v1";
+      function loadStreak(){
+        try{
+          const raw = localStorage.getItem(STREAK_KEY);
+          if(!raw) return { streak: 0, lastDay: null };
+          const data = JSON.parse(raw);
+          if (typeof data.streak !== "number") data.streak = 0;
+          return { streak: data.streak, lastDay: data.lastDay || null };
+        }catch{
+          return { streak: 0, lastDay: null };
+        }
+      }
+      function saveStreak(data){
+        try{ localStorage.setItem(STREAK_KEY, JSON.stringify(data)); }catch{}
+      }
+
+      let streakData = loadStreak();
+
+      // Ensure streak is consistent on page load (handles missed days)
+      function reconcileStreak(){
+        const today = localDayKey();
+        const last = streakData.lastDay;
+
+        if (!last){
+          // first time user
+          streakData.streak = Math.max(0, streakData.streak || 0);
+          saveStreak(streakData);
+          return;
+        }
+
+        const diff = dayDiff(last, today);
+
+        if (diff === 0){
+          // already marked today
+          return;
+        }
+        if (diff === 1){
+          // yesterday marked, today not yet -> streak stays same until user marks today
+          return;
+        }
+        if (diff > 1){
+          // missed days -> reset streak
+          streakData.streak = 0;
+          streakData.lastDay = null; // or keep lastDay; but better null for restart
+          saveStreak(streakData);
+          addActivity({tag:"RESET", color:"magenta", text:"Streak reset (missed day detected)"});
+        }
+      }
+
+      function renderStreak(){
+        reconcileStreak();
+        const today = localDayKey();
+        const last = streakData.lastDay;
+
+        streakNumEl.textContent = String(streakData.streak);
+
+        const doneToday = last === today;
+        if (doneToday){
+          streakStateEl.textContent = "✅ Today completed";
+          markStudyBtn.textContent = "Completed";
+          markStudyBtn.disabled = true;
+          markStudyBtn.style.opacity = "0.6";
+          markStudyBtn.style.cursor = "not-allowed";
+        } else {
+          streakStateEl.textContent = "⏳ Not completed today";
+          markStudyBtn.textContent = "Mark Today Done";
+          markStudyBtn.disabled = false;
+          markStudyBtn.style.opacity = "1";
+          markStudyBtn.style.cursor = "pointer";
+        }
+      }
+
+      function markTodayDone(){
+        const today = localDayKey();
+        const last = streakData.lastDay;
+
+        if (last === today) return;
+
+        if (!last){
+          // first completion ever
+          streakData.streak = 1;
+        } else {
+          const diff = dayDiff(last, today);
+          if (diff === 1) streakData.streak += 1;       // continued streak
+          else if (diff === 0) {}                       // already done
+          else streakData.streak = 1;                   // broke streak, restart
+        }
+
+        streakData.lastDay = today;
+        saveStreak(streakData);
+
+        addActivity({tag:"STREAK", color:"cyan", text:`Study marked complete • streak = ${streakData.streak} days`});
+        renderStreak();
+      }
+
+      if (markStudyBtn){
+        markStudyBtn.addEventListener("click", markTodayDone);
+      }
+      renderStreak();
+
+      // Check once per minute in case date changes while tab open
+      setInterval(renderStreak, 60000);
+
+      // =========================
+      // Existing: 3D Parallax
+      // =========================
+      const scene = document.getElementById("scene");
+      const consoleBar = document.getElementById("console");
+
+      let mx = 0, my = 0, tx = 0, ty = 0;
+
+      window.addEventListener("mousemove", (e) => {
+        const w = window.innerWidth;
+        const h = window.innerHeight;
+        mx = (e.clientX / w - 0.5) * 2;
+        my = (e.clientY / h - 0.5) * 2;
+      });
+
+      function parallaxLoop() {
+        tx += (mx - tx) * 0.06;
+        ty += (my - ty) * 0.06;
+
+        const rotY = clamp(tx * 8, -10, 10);
+        const rotX = clamp(-ty * 6, -8, 8);
+
+        if (scene) scene.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg)`;
+        if (consoleBar) consoleBar.style.transform =
+          `translateX(-50%) translateZ(40px) rotateX(${rotX * 0.25}deg) rotateY(${rotY * 0.35}deg)`;
+
+        requestAnimationFrame(parallaxLoop);
+      }
+      parallaxLoop();
+
+      // =========================
+      // Existing: Neural Background + Particles
+      // =========================
+      const canvas = document.getElementById("neuralCanvas");
+      if (!canvas) return;
+      const ctx = canvas.getContext("2d");
+
+      let W = 0, H = 0, DPR = 1;
+
+      function resize() {
+        DPR = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+        W = Math.floor(window.innerWidth);
+        H = Math.floor(window.innerHeight);
+        canvas.width = Math.floor(W * DPR);
+        canvas.height = Math.floor(H * DPR);
+        canvas.style.width = W + "px";
+        canvas.style.height = H + "px";
+        ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+      }
+      window.addEventListener("resize", resize);
+      resize();
+
+      const nodes = [];
+      const particles = [];
+
+      function rand(min, max) { return min + Math.random() * (max - min); }
+
+      function init() {
+        nodes.length = 0;
+        particles.length = 0;
+
+        const nCount = clamp(Math.round((window.innerWidth * window.innerHeight) / 24000), 35, 110);
+        for (let i = 0; i < nCount; i++) {
+          nodes.push({
+            x: rand(0, W),
+            y: rand(0, H),
+            vx: rand(-0.25, 0.25),
+            vy: rand(-0.25, 0.25),
+            r: rand(1.2, 2.2),
+          });
+        }
+
+        const pCount = clamp(Math.round((window.innerWidth * window.innerHeight) / 18000), 45, 160);
+        for (let i = 0; i < pCount; i++) {
+          particles.push({
+            x: rand(0, W),
+            y: rand(0, H),
+            vx: rand(-0.18, 0.18),
+            vy: rand(-0.18, 0.18),
+            r: rand(0.6, 1.8),
+            a: rand(0.08, 0.24),
+          });
+        }
+      }
+      init();
+      window.addEventListener("resize", init);
+
+      function drawGlows() {
+        const g1 = ctx.createRadialGradient(W * 0.2, H * 0.3, 0, W * 0.2, H * 0.3, Math.max(W, H) * 0.45);
+        g1.addColorStop(0, "rgba(0,240,255,0.12)");
+        g1.addColorStop(1, "rgba(0,240,255,0)");
+
+        const g2 = ctx.createRadialGradient(W * 0.8, H * 0.7, 0, W * 0.8, H * 0.7, Math.max(W, H) * 0.45);
+        g2.addColorStop(0, "rgba(255,0,255,0.10)");
+        g2.addColorStop(1, "rgba(255,0,255,0)");
+
+        ctx.fillStyle = g1; ctx.fillRect(0, 0, W, H);
+        ctx.fillStyle = g2; ctx.fillRect(0, 0, W, H);
+      }
+
+      const scanBtn = document.getElementById("simulateScan");
+      let scanPulse = 0;
+      if (scanBtn) scanBtn.addEventListener("click", () => {
+        scanPulse = 1;
+        addActivity({tag:"SCAN", color:"cyan", text:"System scan initiated"});
+      });
+
+      function step() {
+        ctx.clearRect(0, 0, W, H);
+
+        ctx.fillStyle = "rgba(0,2,5,0.9)";
+        ctx.fillRect(0, 0, W, H);
+
+        drawGlows();
+
+        // Particles
+        for (const p of particles) {
+          p.x += p.vx; p.y += p.vy;
+
+          if (p.x < -10) p.x = W + 10;
+          if (p.x > W + 10) p.x = -10;
+          if (p.y < -10) p.y = H + 10;
+          if (p.y > H + 10) p.y = -10;
+
+          ctx.beginPath();
+          ctx.fillStyle = `rgba(255,255,255,${p.a})`;
+          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // Nodes
+        for (const n of nodes) {
+          n.x += n.vx; n.y += n.vy;
+          if (n.x < 0 || n.x > W) n.vx *= -1;
+          if (n.y < 0 || n.y > H) n.vy *= -1;
+        }
+
+        // Connections
+        const linkDist = clamp(Math.min(W, H) * 0.15, 90, 160);
+        for (let i = 0; i < nodes.length; i++) {
+          const a = nodes[i];
+
+          ctx.beginPath();
+          ctx.fillStyle = "rgba(0,240,255,0.45)";
+          ctx.arc(a.x, a.y, a.r, 0, Math.PI * 2);
+          ctx.fill();
+
+          for (let j = i + 1; j < nodes.length; j++) {
+            const b = nodes[j];
+            const dx = a.x - b.x;
+            const dy = a.y - b.y;
+            const d = Math.hypot(dx, dy);
+
+            if (d < linkDist) {
+              const alpha = (1 - d / linkDist) * 0.35;
+              const isMag = ((i + j) % 7 === 0);
+              ctx.strokeStyle = isMag ? `rgba(255,0,255,${alpha})` : `rgba(0,240,255,${alpha})`;
+
+              ctx.lineWidth = 1;
+              ctx.beginPath();
+              ctx.moveTo(a.x, a.y);
+              ctx.lineTo(b.x, b.y);
+              ctx.stroke();
+            }
+          }
+        }
+
+        // Scan pulse
+        if (scanPulse > 0) {
+          scanPulse = Math.max(0, scanPulse - 0.02);
+          const y = (1 - scanPulse) * H;
+          const grad = ctx.createLinearGradient(0, y - 120, 0, y + 120);
+          grad.addColorStop(0, "rgba(0,240,255,0)");
+          grad.addColorStop(0.5, "rgba(0,240,255,0.14)");
+          grad.addColorStop(1, "rgba(0,240,255,0)");
+          ctx.fillStyle = grad;
+          ctx.fillRect(0, y - 140, W, 280);
+        }
+
+        requestAnimationFrame(step);
+      }
+      step();
+
+    })();
+  </script>
+</body>
+</html>
