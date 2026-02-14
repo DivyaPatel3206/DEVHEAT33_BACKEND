@@ -24,6 +24,22 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+from flask import Flask, render_template
+
+app = Flask(__name__)
+
+@app.route("/mcq")
+def mcq():
+    return render_template("mcq.html")
+
+@app.route("/cg")
+def cg():
+    return render_template("cg.html")
+
+@app.route("/dashboard")
+def dashboard():
+    return render_template("dashboard.html")
+
 
 # ✅ Pydantic models for JSON body
 class TextRequest(BaseModel):
