@@ -617,10 +617,10 @@
       <div class="console-id">COMMAND_CONSOLE_V3.1</div>
       <div class="console-glint"></div>
 
-      <a href="dashboard.html" class="nav-item active"><i>⌂</i> Dashboard</a>
-      <a href="pdf_ui.html" class="nav-item"><i>⤒</i> Upload</a>
-      <a href="mcq.html" class="nav-item"><i>?</i> Quiz</a>
-      <a href="cg.html" class="nav-item"><i>⑂</i> Graph</a>
+     <a href="{{ url_for('mcq') }}" class="nav-item">Quiz</a>
+<a href="{{ url_for('cg') }}" class="nav-item">Graph</a>
+<a href="{{ url_for('dashboard') }}" class="nav-item">Dashboard</a>
+
       <a href="calendar.html" class="nav-item"><i>📅</i> Calendar</a>
       <a href="group.html" class="nav-item group"><i>👥</i> Group</a>
     </nav>
